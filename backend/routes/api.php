@@ -17,9 +17,12 @@ use App\Http\Controllers\Api\PhotoApiController;
 |
 */
 Route::get('/photos', [PhotoApiController::class, 'show']);
-Route::get('/photos/{id}', [PhotoApiController::class, 'find']);
+
+Route::get('/photos/{id}', [PhotoApiController::class, 'find'])->where('id', '[0-9]+');
+
 Route::post('/up', [PhotoApiController::class, 'upload']);
-Route::delete('/photos/{id}', [PhotoApiController::class, 'destroy']);
+
+Route::delete('/photos/{id}', [PhotoApiController::class, 'destroy'])->where('id', '[0-9]+');
 
 Route::get('users', function(){
     return User::all();

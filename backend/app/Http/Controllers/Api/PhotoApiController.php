@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Photo;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Services\PhotoService;
-use Illuminate\Http\UploadedFile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UploadRequest;
+use Illuminate\Http\JsonResponse;
 
 class PhotoApiController extends Controller
 {
@@ -18,19 +17,20 @@ class PhotoApiController extends Controller
         $this->service = $service;
     }
 
-    public function show(){
+    public function show(): JsonResponse
+    {
         $photos = $this->service->showPhotos();
         return response()->json(['data' => $photos], Response::HTTP_OK);
     }
 
-    public function find($id){
+    public function find(int $id): JsonResponse
+    {
         $photo = $this->service->findOne($id);
         return response()->json(['image_path' => $photo, Response::HTTP_OK]);
     }
 
-    public function upload(UploadRequest $request)
+    public function upload(UploadRequest $request): JsonResponse
     {
-        /* dd($request->all()); */
         $this->service->upload($request);
 
         $lastRecord = Photo::latest()->first();
@@ -45,7 +45,7 @@ class PhotoApiController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $data = $this->service->findOne($id);
 

@@ -4,7 +4,9 @@
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\PhotoApiController;
+use App\Http\Controllers\Api\Auth\UserAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +18,7 @@ use App\Http\Controllers\Api\PhotoApiController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('/photos', [PhotoApiController::class, 'show']);
+/* Route::get('/photos', [PhotoApiController::class, 'show']);
 
 Route::get('/photos/{id}', [PhotoApiController::class, 'find'])->where('id', '[0-9]+');
 
@@ -24,9 +26,31 @@ Route::post('/up', [PhotoApiController::class, 'upload']);
 
 Route::delete('/photos/{id}', [PhotoApiController::class, 'destroy'])->where('id', '[0-9]+');
 
-Route::get('users', function(){
+Route::apiResource('/users', UserApiController::class);
+
+Route::post('auth/login', [UserAuthController::class, 'login']); */
+
+/* Route::get('users', function(){
     return User::all();
+}); */
+Route::post('auth/login', [UserAuthController::class, 'login']);
+Route::apiResource('/users', UserApiController::class);
+
+Route::middleware('auth:sanctum')->group(function (){
+    Route::get('/photos', [PhotoApiController::class, 'show']);
+
+    Route::get('/photos/{id}', [PhotoApiController::class, 'find'])->where('id', '[0-9]+');
+
+    Route::post('/up', [PhotoApiController::class, 'upload']);
+
+    Route::delete('/photos/{id}', [PhotoApiController::class, 'destroy'])->where('id', '[0-9]+');
 });
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+/* {
+	"name": "newton",
+	"email": "newton@gmail.com",
+	"password": "S@xalto0982"
+} */
+
+/* "token": "1|SjY9MwKIPmgUQ8idTqAMyZ9gVz809VOfYSoxKH7p55ac8e40"
+ */

@@ -13,12 +13,12 @@ class PhotoService {
         return $this->repository->show();
     }
 
-    public function upload($request)
+    public function upload($request, $userId)
     {
         if($request->hasFile('image_path')){
             $path = $request->file('image_path')->store('photos');
 
-            $this->repository->upload($path);
+            $this->repository->upload($path, $userId);
         }
     }
     public function findOne(int $id)

@@ -12,9 +12,26 @@ abstract class AbstractRepository implements InterfaceRepository {
         return $this->model->all();
     }
 
-    public function upload($data)
+    public function new($data){
+
+        return $this->model->create($data);
+
+    }
+
+    public function update($id, $request) {
+        $data = $this->model->find($id);
+
+        if (!$data) {
+            throw new \Exception("Registro não encontrado");
+        }
+        $data->update($request);
+
+        return $data->save();
+    }
+
+    public function upload($data, $userId)
     {
-        return $this->model->create(['image_path' => $data]);
+        return $this->model->create(['image_path' => $data, 'user_id' => $userId]);
     }
 
     public function destroy(int $id)

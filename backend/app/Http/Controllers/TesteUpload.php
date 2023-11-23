@@ -17,8 +17,7 @@ class TesteUpload extends Controller
         return view('teste');
     }
 
-    public function testeUpload_action(UploadRequest $request){
-        /* dd($request->all()); */
+    public function testeUpload_action(Request $request){
 
         if ($request->hasFile('photo')) {
 

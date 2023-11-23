@@ -8,6 +8,7 @@ use App\Services\PhotoService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UploadRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PhotoApiController extends Controller
 {
@@ -17,10 +18,28 @@ class PhotoApiController extends Controller
         $this->service = $service;
     }
 
-    public function show(): JsonResponse
+    public function show(Request $request): JsonResponse
     {
+        $perPage = $request->query('per_page', 5);
+        $page = $request->query('page', 1);
+
         $photos = $this->service->showPhotos();
-        return response()->json(['data' => $photos], Response::HTTP_OK);
+
+        $totalItems = $photos->count();
+        $currentPage = $page;
+        $itemsPerPage = $perPage;
+        $lastPage = ceil($totalItems / $itemsPerPage);
+
+        $photos = $photos->forPage($currentPage, $itemsPerPage);
+
+        $response = [
+            "pagina_atual" => $currentPage,
+            "total_paginas" => $lastPage,
+            "total_registros" => $totalItems,
+            "registros_por_pagina" => $itemsPerPage,
+            "registros" => $photos->values()->all(),
+        ];
+        return response()->json($response, Response::HTTP_OK);
     }
 
     public function find(int $id): JsonResponse
@@ -31,7 +50,9 @@ class PhotoApiController extends Controller
 
     public function upload(UploadRequest $request): JsonResponse
     {
-        $this->service->upload($request);
+        $user = auth()->user();
+
+        $this->service->upload($request, $user->id);
 
         $lastRecord = Photo::latest()->first();
 

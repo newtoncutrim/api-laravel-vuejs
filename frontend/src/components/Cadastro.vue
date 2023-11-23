@@ -5,7 +5,6 @@
         <img src="http://danielzawadzki.com/codepen/01/icon.svg" alt="User Icon" style="width: 60%;" />
       </div>
       <div class="card-body">
-        <!-- Formulário de Cadastro -->
         <form @submit.prevent="submitForm">
           <div class="form-group">
             <input type="text" v-model="login" class="form-control" name="name" placeholder="Login">
@@ -50,12 +49,10 @@ export default {
       // Chamada para a API de cadastro
       axios.post('http://localhost:8989/api/users', formData)
         .then(response => {
-          // Trate a resposta da API conforme necessário
           console.log('Cadastro realizado com sucesso:', response.data);
           this.$router.push('/login');
         })
         .catch(error => {
-          // Trate erros de requisição aqui
           console.error('Erro ao cadastrar:', error);
         });
     },

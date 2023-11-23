@@ -1,7 +1,7 @@
 <template>
 
 <div>
-    <PhotoList/><!-- Conteúdo da HomeView -->
+    <PhotoList/>
 </div>
 </template>
 

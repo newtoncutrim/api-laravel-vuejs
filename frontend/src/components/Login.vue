@@ -5,7 +5,7 @@
           <img src="http://danielzawadzki.com/codepen/01/icon.svg" alt="User Icon" style="width: 60%;" />
         </div>
         <div class="card-body">
-          <!-- Formulário de Login -->
+
           <form @submit.prevent="submitForm">
             <div class="form-group">
               <input type="email" v-model="email" class="form-control" name="email" placeholder="email">
@@ -43,11 +43,9 @@
         // Chamada para a API de login
         axios.post('http://localhost:8989/api/auth/login', formData)
           .then(response => {
-            // Trate a resposta da API conforme necessário
             console.log(response.data.data.token)
             const token = response.data.data.token;
   
-            // Armazene o token JWT localmente (por exemplo, no localStorage)
             localStorage.setItem('token', token);
   
             // Redirecionar para a página após o login

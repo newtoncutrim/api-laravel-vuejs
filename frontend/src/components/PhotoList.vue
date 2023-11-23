@@ -42,7 +42,6 @@
                 </form>
               </section>
           </div>
-          <!-- Adicione botões para navegar entre as páginas -->
           <div class="pagination">
             <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
             <span>Página {{ currentPage }} de {{ lastPage }}</span>
@@ -95,8 +94,6 @@ export default {
     },
     async uploadPhoto() {
       try {
-        /* const token = localStorage.getItem('token');
-        console.log(token) */
         const token = localStorage.getItem('token');
 
         if (!token) {

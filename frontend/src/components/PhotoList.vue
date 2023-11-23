@@ -29,7 +29,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                   </div>
                 </div>
-                <button @click="deletePhoto(photo.id)" class="btn btn-sm btn-outline-danger" v-on:click="deletar()">Excluir</button>
+                <button @click="deletePhoto(photo.id)" class="btn btn-sm btn-outline-danger">Excluir</button>
               </div>
             </div>
             <section class="add-more">
@@ -42,6 +42,13 @@
                 </form>
               </section>
           </div>
+          <!-- Adicione botões para navegar entre as páginas -->
+          <div class="pagination">
+            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
+            <span>Página {{ currentPage }} de {{ lastPage }}</span>
+            <button @click="changePage(currentPage + 1)" :disabled="currentPage === lastPage">Próxima</button>
+          </div>
+
         </div>
       </div>
     </main>
@@ -55,6 +62,7 @@
 
 <script>
 import axios from 'axios';
+import axiosApi from '../plugins/axios';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -66,6 +74,7 @@ export default {
     return {
       photos: [], 
       selectedPhoto: null,
+      currentPage: 1,
     };
   },
   methods: {
@@ -74,18 +83,34 @@ export default {
     },
     async fetchPhotos() {
       try {
-        const response = await axios.get('http://localhost:8989/api/photos');
-        this.photos = response.data.data;
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8989/api/photos', {headers: {
+          Authorization: `Bearer ${token}`,
+        }});
+        
+        this.photos = response.data.registros;
       } catch (error) {
         console.error('Erro ao buscar fotos:', error);
       }
     },
     async uploadPhoto() {
       try {
+        /* const token = localStorage.getItem('token');
+        console.log(token) */
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          console.error('Token não encontrado. Redirecionando para a página de login.');
+          // this.$router.push('/login');
+          return;
+        }
+
         const formData = new FormData();
         formData.append('image_path', this.selectedPhoto);
 
-        await axios.post('http://localhost:8989/api/up', formData);
+        await axios.post('http://localhost:8989/api/up', formData, {headers: {
+          Authorization: `Bearer ${token}`,
+        }});
 
         this.fetchPhotos();
       } catch (error) {
@@ -110,7 +135,12 @@ export default {
       
       if (confirmDelete) {
         try {
-          await axios.delete(`http://localhost:8989/api/photos/${photoId}`);
+          const token = localStorage.getItem('token');
+
+
+          await axios.delete(`http://localhost:8989/api/photos/${photoId}`, {headers:{
+            Authorization: `Bearer ${token}`,
+          }});
 
           this.fetchPhotos();
         } catch (error) {
@@ -118,6 +148,16 @@ export default {
         }
       }
     },
+    async changePage(page) {
+    try {
+      const response = await axios.get(`http://localhost:8989/api/photos?page=${page}`);
+      console.log(response.data.registros)
+      this.photos = response.data.registros;
+      this.currentPage = page;
+    } catch (error) {
+      console.error('Erro ao buscar fotos:', error);
+    }
+  },
   },
   mounted() {
     this.fetchPhotos();

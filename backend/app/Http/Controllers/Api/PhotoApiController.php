@@ -23,7 +23,8 @@ class PhotoApiController extends Controller
         $perPage = $request->query('per_page', 5);
         $page = $request->query('page', 1);
 
-        $photos = $this->service->showPhotos();
+        $user = auth()->user();
+        $photos = $this->service->showPhotos($user);
 
         $totalItems = $photos->count();
         $currentPage = $page;

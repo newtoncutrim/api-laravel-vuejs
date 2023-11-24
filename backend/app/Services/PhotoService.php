@@ -8,9 +8,9 @@ class PhotoService {
     public function __construct(protected PhotoRepository $repository)
     {}
 
-    public function showPhotos()
+    public function showPhotos($user)
     {
-        return $this->repository->show();
+        return $this->repository->show($user->id);
     }
 
     public function upload($request, $userId)

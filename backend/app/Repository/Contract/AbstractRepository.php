@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 abstract class AbstractRepository implements InterfaceRepository {
     protected Model $model;
 
-    public function Show()
+    public function Show($id)
     {
-        return $this->model->all();
+        return $this->model->where('user_id', $id)->get();
     }
 
     public function new($data){

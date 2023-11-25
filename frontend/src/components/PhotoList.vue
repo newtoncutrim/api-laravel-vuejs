@@ -55,11 +55,16 @@
                       <div class="modal-body">
                         <img :src="modalPhotoUrl" alt="foto" class="w-100"> 
                       </div>
-                      <div class="modal-footer">
- <!--                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button> -->
-                        <input type="text" id="title" name="title" class="form-control" v-model="title">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Editar</button>
-                        
+                      <div>
+                        <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data" >
+                          <div class="mb-5">
+                            <label class="form-label" for="photo">Selecione uma foto:</label>
+                            <input ref="photoInput" class="form-control" type="file" id="photo" name="image_path" @change="handleFileChange" accept="image/*">
+                            <label class="form-label" for="title">Titulo da Imagem</label>
+                            <input type="text" id="title" name="title" class="form-control" v-model="title">
+                          </div>
+                          <button class="btn btn-primary" type="submit">Editar</button>
+                        </form>
                       </div>
                     </div>
                   </div>
@@ -109,8 +114,10 @@ export default {
   data() {
     return {
       photos: [], 
+      editingPhotoId: null,
       selectedPhoto: null,
       title: '',
+      editedTitle: '',
       currentPage: 1,
       totalPages: 1,
       userName: "",
@@ -226,7 +233,7 @@ export default {
         }
       },
       async getPhotoId(photoId){
-        console.log(photoId)
+        this.editingPhotoId = photoId;
         const token = localStorage.getItem('token');
         const response = await axios.get(`http://localhost:8989/api/photos/${photoId}`, {
         headers: {
@@ -235,7 +242,34 @@ export default {
 
       });
       this.modalPhotoUrl = this.getPhotoUrl(response.data.image_path.image_path);
+      this.editedTitle = response.data.image_path.title;
+      console.log(response.data.image_path.title)
+    },
+    async editPhoto() {
+    try {
+      const token = localStorage.getItem('token');
+
+      const dataToUpdate = {
+        title: this.editedTitle,
+        // outros campos a serem atualizados
+      };
+
+      await axios.post(`http://localhost:8989/api/photo/${this.editingPhotoId}`, dataToUpdate, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      // Limpar estados e fechar o modal
+      this.editingPhotoId = null;
+      this.editedTitle = '';
+      // outros campos do formulário conforme necessário
+      $('#exampleModal').modal('hide');  // ou use um método Vue para esconder o modal
+      this.fetchPhotos();  // recarregar fotos após edição
+    } catch (error) {
+      console.error('Erro ao editar a foto:', error);
     }
+  },
     },
     mounted() {
       this.fetchPhotos();

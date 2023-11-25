@@ -2,22 +2,30 @@
     <div class="container mt-5">
       <div class="card mx-auto" style="max-width: 400px;">
         <div class="card-header text-center">
-          <img src="http://danielzawadzki.com/codepen/01/icon.svg" alt="User Icon" style="width: 60%;" />
+          <h2><strong>Login</strong></h2>
         </div>
         <div class="card-body">
 
           <form @submit.prevent="submitForm">
-            <div class="form-group">
+            <div class="form-group pb-3">
               <input type="email" v-model="email" class="form-control" name="email" placeholder="email">
             </div>
-            <div class="form-group">
+            <div class="form-group pb-3">
               <input type="password" v-model="password" class="form-control" name="password" placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary btn-block mx-auto">Entrar</button>
+            </div>
+            <div v-if="loginErrors.length > 0" class="alert alert-danger mt-3">
+            <ul>
+              <li v-for="error in loginErrors" :key="error">{{ error }}</li>
+            </ul>
+          </div>
           </form>
         </div>
-        <div class="card-footer text-center">
-          <a class="underlineHover" href="#">Esqueceu a senha?</a>
+        <div class="card-footer">
+          <p>Deseja se cadastrar?</p>
+          <RouterLink to="/cadastro" >Cadastro</RouterLink>   
         </div>
       </div>
     </div>
@@ -31,6 +39,7 @@
       return {
         email: '',
         password: '',
+        loginErrors: [],
       };
     },
     methods: {
@@ -39,23 +48,27 @@
           email: this.email,
           password: this.password,
         };
-        console.log(formData)
         // Chamada para a API de login
         axios.post('http://localhost:8989/api/auth/login', formData)
           .then(response => {
-            console.log(response.data.data.token)
             const token = response.data.data.token;
+            const nome = response.data.data.user.name;
+            /* console.log(nome) */
+            if(token){
+              localStorage.setItem('token', token);
+              localStorage.setItem('userName', nome);
   
-            localStorage.setItem('token', token);
-  
-            // Redirecionar para a página após o login
-            /* this.$router.push('/home'); */
+              this.$router.push('/');
+            }
+
           })
           .catch(error => {
-            // Trate erros de autenticação aqui
+            if (error.response && error.response.data && error.response.data.errors) {
+            this.loginErrors = Object.values(error.response.data.errors).flat();
+            }
             console.error('Erro ao realizar login:', error);
           });
-      },
+        },
     },
   };
   </script>

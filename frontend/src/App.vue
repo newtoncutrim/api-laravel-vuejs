@@ -8,9 +8,9 @@ import CadastroView from './views/CadastroView.vue';
   <div>
     <header>
     <nav>
-      <RouterLink to="/" class="nav-link">Home</RouterLink> 
-      <RouterLink to="/cadastro" class="nav-link">cadastro</RouterLink>       
-      <RouterLink to="/login" class="nav-link"> Login</RouterLink>
+<!--       <RouterLink to="/" class="nav-link">Home</RouterLink>  -->
+<!--       <RouterLink to="/cadastro" class="nav-link">cadastro</RouterLink>       
+      <RouterLink to="/login" class="nav-link"> Login</RouterLink> -->
     </nav>
     </header>
     <RouterView/>

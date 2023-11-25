@@ -9,51 +9,88 @@
           </svg>
           <strong>Album</strong>
         </a>
+        <button @click="logout" class="btn btn-danger btn-block mt-2">Sair</button>
       </div>
     </header>
 
     <main role="main">
       <section class="jumbotron text-center">
         <div class="container">
-          <h1 class="jumbotron-heading">Album</h1>
+          <h1 class="jumbotron-heading"><h5> <span class="text-danger">Usuario: </span> {{ userName }}</h5></h1>
         </div>
       </section>
-
       <div class="album py-5 bg-light">
         <div class="container">
           <div class="row">
-            <div class="col-md-4" v-for="photo in photos" :key="photo.id">
-              <div class="card mb-4 box-shadow">
-                <img class="card-img-top" :src="getPhotoUrl(photo.image_path)" alt="Photo">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center">
+            <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Photo</th>
+                <th scope="col">titulo</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="photo in photos" :key="photo.id">
+                <th scope="row">{{ photo.id }}</th>
+                <td>
+                  <img :src="getPhotoUrl(photo.image_path)" alt="Photo" class="img-thumbnail">
+                </td>
+                <td>{{photo.title }}</td>
+                <td>
+                  <button @click="deletePhoto(photo.id)" class="btn btn-sm btn-outline-danger margin  ">Excluir</button>
+                  <button 
+                  @click="getPhotoId(photo.id)" type="button" class="btn btn-sm btn-outline-primary " data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  Ver
+                </button>
+                </td>
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg"> 
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">{{photo.title }}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <img :src="modalPhotoUrl" alt="foto" class="w-100"> 
+                      </div>
+                      <div class="modal-footer">
+ <!--                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button> -->
+                        <input type="text" id="title" name="title" class="form-control" v-model="title">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Editar</button>
+                        
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <button @click="deletePhoto(photo.id)" class="btn btn-sm btn-outline-danger">Excluir</button>
               </div>
-            </div>
-            <section class="add-more">
+              </tr>
+            </tbody>
+          </table>
+          <div v-if="totalPages > 1" class="pagination btn-group d-grid gap-2 d-md-block text-center">
+            <button class="btn btn-primary" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
+            <span>Página {{ currentPage }} de {{ totalPages }}</span>
+            <button class="btn btn-primary" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">Próxima</button>
+          </div>
+            <section class="add-more mb-3">
                 <p>Adicionar fotos</p>
-                <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data">
-                <label for="photo">Selecione uma foto:</label>
-                <input type="file" id="photo" name="image_path" @change="handleFileChange" accept="image/*">
-                <br><br>
-                <button type="submit">Enviar</button>
+                <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data" >
+                  <div class="mb-5">
+                    <label class="form-label" for="photo">Selecione uma foto:</label>
+                    <input ref="photoInput" class="form-control" type="file" id="photo" name="image_path" @change="handleFileChange" accept="image/*">
+                    <label class="form-label" for="title">Titulo da Imagem</label>
+                    <input type="text" id="title" name="title" class="form-control" v-model="title">
+                  </div>
+                  <button class="btn btn-primary" type="submit">Enviar</button>
                 </form>
-              </section>
+            </section>
           </div>
-          <div class="pagination">
-            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
-            <span>Página {{ currentPage }} de {{ lastPage }}</span>
-            <button @click="changePage(currentPage + 1)" :disabled="currentPage === lastPage">Próxima</button>
-          </div>
-
         </div>
       </div>
     </main>
-
     <footer class="text-muted">
       <div class="container">
+
       </div>
     </footer>
   </div>
@@ -61,11 +98,11 @@
 
 <script>
 import axios from 'axios';
-import axiosApi from '../plugins/axios';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
+import 'jquery';
 
 
 export default {
@@ -73,20 +110,30 @@ export default {
     return {
       photos: [], 
       selectedPhoto: null,
+      title: '',
       currentPage: 1,
+      totalPages: 1,
+      userName: "",
+      modalPhotoUrl: "",
     };
-  },
-  methods: {
-    getPhotoUrl(imagePath) {
+    },
+    methods: {
+      getPhotoUrl(imagePath) {
       return `http://localhost:8989/storage/${imagePath}`;
     },
     async fetchPhotos() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8989/api/photos', {headers: {
-          Authorization: `Bearer ${token}`,
-        }});
+        this.userName = localStorage.getItem('userName');
         
+
+        const response = await axios.get('http://localhost:8989/api/photos', {
+          headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+        
+        this.totalPages = response.data.total_paginas;
         this.photos = response.data.registros;
       } catch (error) {
         console.error('Erro ao buscar fotos:', error);
@@ -98,17 +145,25 @@ export default {
 
         if (!token) {
           console.error('Token não encontrado. Redirecionando para a página de login.');
-          // this.$router.push('/login');
+          this.$router.push('/login');
           return;
         }
 
         const formData = new FormData();
         formData.append('image_path', this.selectedPhoto);
+        formData.append('title', this.title);
+        
 
-        await axios.post('http://localhost:8989/api/up', formData, {headers: {
+
+        await axios.post('http://localhost:8989/api/up', formData, {
+          headers: {
           Authorization: `Bearer ${token}`,
         }});
 
+        this.$refs.photoInput.value = '';
+        this.title = '';
+        alert('Upload realizado com sucesso')
+        
         this.fetchPhotos();
       } catch (error) {
         console.error('Erro ao fazer upload da foto:', error);
@@ -128,6 +183,7 @@ export default {
       }
     },
     async deletePhoto(photoId) {
+      console.log(photoId)
       const confirmDelete = window.confirm('Tem certeza de que deseja excluir esta foto?');
       
       if (confirmDelete) {
@@ -135,7 +191,8 @@ export default {
           const token = localStorage.getItem('token');
 
 
-          await axios.delete(`http://localhost:8989/api/photos/${photoId}`, {headers:{
+          await axios.delete(`http://localhost:8989/api/photos/${photoId}`, {
+            headers:{
             Authorization: `Bearer ${token}`,
           }});
 
@@ -147,21 +204,53 @@ export default {
     },
     async changePage(page) {
     try {
-      const response = await axios.get(`http://localhost:8989/api/photos?page=${page}`);
-      console.log(response.data.registros)
+      const token = localStorage.getItem('token');
+
+      const response = await axios.get(`http://localhost:8989/api/photos?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      this.totalPages = response.data.total_paginas;
       this.photos = response.data.registros;
       this.currentPage = page;
     } catch (error) {
       console.error('Erro ao buscar fotos:', error);
     }
-  },
-  },
-  mounted() {
-    this.fetchPhotos();
+    },
+    logout() {
+      const confirmLogout = window.confirm('Tem certeza de que deseja sair?');
+        if (confirmLogout){
+          localStorage.removeItem('token');
+          this.$router.push('/login');
+        }
+      },
+      async getPhotoId(photoId){
+        console.log(photoId)
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:8989/api/photos/${photoId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+
+      });
+      this.modalPhotoUrl = this.getPhotoUrl(response.data.image_path.image_path);
+    }
+    },
+    mounted() {
+      this.fetchPhotos();
   },
 };
 </script>
 
 <style scoped>
-@import "@/assets/photo.css";
+.img-thumbnail {
+  width: 150px; 
+  height: 150px; 
+  object-fit: cover; 
+}
+
+.margin {
+  margin-right: 10px;
+}
 </style>

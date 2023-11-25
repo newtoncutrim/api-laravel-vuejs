@@ -9,6 +9,7 @@ class Photo extends Model
 {
     protected $fillable = [
         'image_path',
+        'title',
         'user_id'
     ];
 

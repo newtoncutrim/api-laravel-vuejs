@@ -20,7 +20,7 @@ class PhotoApiController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $perPage = $request->query('per_page', 5);
+        $perPage = $request->query('per_page', 2);
         $page = $request->query('page', 1);
 
         $user = auth()->user();
@@ -65,6 +65,13 @@ class PhotoApiController extends Controller
         } else {
             return response()->json(['error' => 'Nenhum arquivo enviado.'], Response::HTTP_NOT_FOUND);
         }
+    }
+
+    public function edit(Request $request,  $id){
+
+        $this->service->update($request,$id);
+        $data = $this->service->findOne($id);
+        return response()->json(["message" => "Updated success", "data" => $data], Response::HTTP_OK);
     }
 
     public function destroy(int $id): JsonResponse

@@ -9,6 +9,7 @@ class UserService {
     {}
 
     public function register($request){
+
         if(!$data = $request->all()){
             return 'nao cadastrado';
         }
@@ -16,9 +17,6 @@ class UserService {
         return $this->repository->new($data);
     }
 
-    public function findAll(){
-        return $this->repository->show();
-    }
 
     public function findOne(string $id){
         if(!$this->repository->findOne($id)){

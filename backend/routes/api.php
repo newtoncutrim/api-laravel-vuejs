@@ -36,10 +36,12 @@ Route::post('auth/login', [UserAuthController::class, 'login']); */
 Route::post('auth/login', [UserAuthController::class, 'login']);
 Route::apiResource('/users', UserApiController::class);
 
+
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('/photos', [PhotoApiController::class, 'show']);
 
     Route::get('/photos/{id}', [PhotoApiController::class, 'find'])->where('id', '[0-9]+');
+    Route::post('/photo/{id}', [PhotoApiController::class, 'edit'])->where('id', '[0-9]+');
 
     Route::post('/up', [PhotoApiController::class, 'upload']);
 

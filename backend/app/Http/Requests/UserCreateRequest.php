@@ -26,7 +26,7 @@ class UserCreateRequest extends FormRequest
         $rules = [
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
-            'password' => ['required', new PasswordComplexRule],
+            'password' => 'required|string|min:8',
         ];
 
         if($this->method() === 'PUT' || $this->method() === 'PATCH'){

@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: Dockerfile
             args:
-                - user=carlos
+                - user=newton
                 - uid=1000
                 - NODE_VERSION=14
                 - NPM_VERSION=7
@@ -19,8 +19,6 @@ services:
         working_dir: /var/www/
         volumes:
             - ./:/var/www
-        depends_on:
-            - redis
         networks:
             - laravel
 
@@ -54,23 +52,6 @@ services:
             - laravel
 
     # queue
-    queue:
-        image: especializati/laravel9-app
-        restart: unless-stopped
-        command: "php artisan queue:work"
-        volumes:
-            - ./:/var/www
-        depends_on:
-            - redis
-            - app
-        networks:
-            - laravel
-
-    # redis
-    redis:
-        image: redis:latest
-        networks:
-            - laravel
 
 networks:
     laravel:

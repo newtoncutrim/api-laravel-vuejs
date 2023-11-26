@@ -28,12 +28,17 @@ class PhotoService {
         if(!$photo){
             throw new \Exception("Arquivo não inexistente");
         }
-        $dataToUpdate = [
-            'title' => $request->input('title'),
-            'image_path' => $request->file('image_path')->store('photos'),
-            // Outros campos a serem atualizados conforme necessário
-        ];
-        return $this->repository->update($id, $dataToUpdate);
+        $dataToUpdate = [];
+
+        if($request->hasFile('image_path')){
+            $dataToUpdate['image_path'] = $request->file('image_path')->store('photos');
+        }
+
+        if($request->has('title')){
+            $dataToUpdate['title'] = $request->input('title');
+        }
+
+       return $this->repository->update($id,$dataToUpdate);
     }
     public function findOne(int $id)
     {

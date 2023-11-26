@@ -106,8 +106,7 @@ rate
 ```
 5. Para rodar link simbolico
 ```
-docker compose exec app php artisan sto
-rage:link
+docker compose exec app php artisan storage:link
 ```
 6. Para visualizar o Front-end VueJs 
 ```

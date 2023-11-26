@@ -25,15 +25,13 @@
             <table class="table">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">Photo</th>
+                <th scope="col">Foto</th>
                 <th scope="col">titulo</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="photo in photos" :key="photo.id">
-                <th scope="row">{{ photo.id }}</th>
                 <td>
                   <img :src="getPhotoUrl(photo.image_path)" alt="Photo" class="img-thumbnail">
                 </td>
@@ -46,28 +44,30 @@
                 </button>
                 </td>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg"> 
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">{{photo.title }}</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                        <img :src="modalPhotoUrl" alt="foto" class="w-100"> 
-                      </div>
-                      <div>
-                        <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data" >
-                          <div class="mb-5">
-                            <label class="form-label" for="photo">Selecione uma foto:</label>
-                            <input ref="photoInput" class="form-control" type="file" id="photo" name="image_path" @change="handleFileChange" accept="image/*">
-                            <label class="form-label" for="title">Titulo da Imagem</label>
-                            <input type="text" id="title" name="title" class="form-control" v-model="title">
-                          </div>
-                          <button class="btn btn-primary" type="submit">Editar</button>
-                        </form>
-                      </div>
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">{{modaltitle }}</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ref="myModal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <img :src="modalPhotoUrl" alt="foto" class="img-fluid"> 
+                    </div>
+                    <div class="modal-footer">
+                      <form @submit.prevent="editPhoto(photo.id)" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                          <label class="form-label" for="photo">Editar foto:</label>
+                          <input ref="photoInput" class="form-control" type="file" id="photo" name="image_path" @change="handleFileChange" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label" for="title">Título da Imagem</label>
+                          <input type="text" id="title" name="title" class="form-control" v-model="modaltitle">
+                        </div>
+                        <button class="btn btn-primary" type="submit">Editar</button>
+                      </form>
                     </div>
                   </div>
+                </div>
               </div>
               </tr>
             </tbody>
@@ -110,170 +110,189 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import 'jquery';
 
 
+
 export default {
   data() {
     return {
       photos: [], 
       editingPhotoId: null,
+      editingPhoto: {
+        id: null,
+        title: '',
+        image_path: '',
+      },
       selectedPhoto: null,
+      newSelectedPhoto: null,
       title: '',
       editedTitle: '',
       currentPage: 1,
       totalPages: 1,
       userName: "",
       modalPhotoUrl: "",
+      modaltitle: "",
     };
     },
     methods: {
       getPhotoUrl(imagePath) {
       return `http://localhost:8989/storage/${imagePath}`;
-    },
-    async fetchPhotos() {
-      try {
-        const token = localStorage.getItem('token');
-        this.userName = localStorage.getItem('userName');
-        
+      },
+        async fetchPhotos() {
+          try {
+            const token = localStorage.getItem('token');
+            this.userName = localStorage.getItem('userName');
+            
+            const response = await axios.get('http://localhost:8989/api/photos', {
+              headers: {
+              Authorization: `Bearer ${token}`,
+            },
 
-        const response = await axios.get('http://localhost:8989/api/photos', {
-          headers: {
-          Authorization: `Bearer ${token}`,
+          });
+          this.totalPages = response.data.total_paginas;
+          this.photos = response.data.registros;
+
+        } catch (error) {
+          console.error('Erro ao buscar fotos:', error);
+        }
+      },
+        async uploadPhoto() {
+          try {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+              console.error('Token não encontrado. Redirecionando para a página de login.');
+              this.$router.push('/login');
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append('image_path', this.selectedPhoto);
+            formData.append('title', this.title);
+            
+            await axios.post('http://localhost:8989/api/up', formData, {
+              headers: {
+              Authorization: `Bearer ${token}`,
+            }});
+
+            this.$refs.photoInput.value = '';
+            this.title = '';
+            alert('Upload realizado com sucesso')
+        
+            this.fetchPhotos();
+          } catch (error) {
+            console.error('Erro ao fazer upload da foto:', error);
+          }
         },
-      });
-        
-        this.totalPages = response.data.total_paginas;
-        this.photos = response.data.registros;
-      } catch (error) {
-        console.error('Erro ao buscar fotos:', error);
-      }
-    },
-    async uploadPhoto() {
-      try {
-        const token = localStorage.getItem('token');
+        handleFileChange(event) {
+            const allowedFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            this.selectedPhoto = event.target.files[0];
 
-        if (!token) {
-          console.error('Token não encontrado. Redirecionando para a página de login.');
-          this.$router.push('/login');
-          return;
+          if (this.selectedPhoto) {
+            if (allowedFormats.includes(this.selectedPhoto.type)) {
+            } else {
+              alert('O arquivo deve ser uma imagem nos formatos JPEG, PNG, JPG ou GIF.');
+              this.selectedPhoto = null;
+
+            }
+          }
+        },
+        async deletePhoto(photoId) {
+          console.log(photoId)
+          const confirmDelete = window.confirm('Tem certeza de que deseja excluir esta foto?');
+          
+          if (confirmDelete) {
+            try {
+              const token = localStorage.getItem('token');
+
+
+              await axios.delete(`http://localhost:8989/api/photos/${photoId}`, {
+              headers:{
+              Authorization: `Bearer ${token}`,
+              }});
+
+              this.fetchPhotos();
+            } catch (error) {
+            console.error('Erro ao excluir a foto:', error);
+          }
         }
-
-        const formData = new FormData();
-        formData.append('image_path', this.selectedPhoto);
-        formData.append('title', this.title);
-        
-
-
-        await axios.post('http://localhost:8989/api/up', formData, {
-          headers: {
-          Authorization: `Bearer ${token}`,
-        }});
-
-        this.$refs.photoInput.value = '';
-        this.title = '';
-        alert('Upload realizado com sucesso')
-        
-        this.fetchPhotos();
-      } catch (error) {
-        console.error('Erro ao fazer upload da foto:', error);
-      }
-    },
-    handleFileChange(event) {
-      const allowedFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-      this.selectedPhoto = event.target.files[0];
-
-      if (this.selectedPhoto) {
-        if (allowedFormats.includes(this.selectedPhoto.type)) {
-        } else {
-          alert('O arquivo deve ser uma imagem nos formatos JPEG, PNG, JPG ou GIF.');
-          this.selectedPhoto = null;
-
-        }
-      }
-    },
-    async deletePhoto(photoId) {
-      console.log(photoId)
-      const confirmDelete = window.confirm('Tem certeza de que deseja excluir esta foto?');
-      
-      if (confirmDelete) {
+      },
+      async changePage(page) {
         try {
           const token = localStorage.getItem('token');
 
-
-          await axios.delete(`http://localhost:8989/api/photos/${photoId}`, {
-            headers:{
+            const response = await axios.get(`http://localhost:8989/api/photos?page=${page}`, {
+            headers: {
             Authorization: `Bearer ${token}`,
-          }});
+            }
+          });
 
-          this.fetchPhotos();
+          this.totalPages = response.data.total_paginas;
+          this.photos = response.data.registros;
+          this.currentPage = page;
         } catch (error) {
-          console.error('Erro ao excluir a foto:', error);
-        }
-      }
-    },
-    async changePage(page) {
-    try {
-      const token = localStorage.getItem('token');
-
-      const response = await axios.get(`http://localhost:8989/api/photos?page=${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      });
-      this.totalPages = response.data.total_paginas;
-      this.photos = response.data.registros;
-      this.currentPage = page;
-    } catch (error) {
-      console.error('Erro ao buscar fotos:', error);
-    }
-    },
-    logout() {
-      const confirmLogout = window.confirm('Tem certeza de que deseja sair?');
-        if (confirmLogout){
-          localStorage.removeItem('token');
-          this.$router.push('/login');
+          console.error('Erro ao buscar fotos:', error);
         }
       },
-      async getPhotoId(photoId){
-        this.editingPhotoId = photoId;
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:8989/api/photos/${photoId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
+      logout() {
+          const confirmLogout = window.confirm('Tem certeza de que deseja sair?');
+          if (confirmLogout){
+            localStorage.removeItem('token');
+            this.$router.push('/login');
+          }
+        },
+        async getPhotoId(photoId){
+          this.editingPhotoId = photoId;
 
-      });
-      this.modalPhotoUrl = this.getPhotoUrl(response.data.image_path.image_path);
-      this.editedTitle = response.data.image_path.title;
-      console.log(response.data.image_path.title)
-    },
-    async editPhoto() {
-    try {
-      const token = localStorage.getItem('token');
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`http://localhost:8989/api/photos/${photoId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
 
-      const dataToUpdate = {
-        title: this.editedTitle,
-        // outros campos a serem atualizados
+        this.editingPhoto = {
+        id: response.data.image_path.id,
+        title: response.data.image_path.title,
+        image_path: response.data.image_path.image_path,
       };
 
-      await axios.post(`http://localhost:8989/api/photo/${this.editingPhotoId}`, dataToUpdate, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      });
+      this.modalPhotoUrl = this.getPhotoUrl(this.editingPhoto.image_path);
+      this.modaltitle = this.editingPhoto.title
+    },
+    async editPhoto(photoId) {
+      try {
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('image_path', this.selectedPhoto);
 
-      // Limpar estados e fechar o modal
-      this.editingPhotoId = null;
-      this.editedTitle = '';
-      // outros campos do formulário conforme necessário
-      $('#exampleModal').modal('hide');  // ou use um método Vue para esconder o modal
-      this.fetchPhotos();  // recarregar fotos após edição
-    } catch (error) {
-      console.error('Erro ao editar a foto:', error);
-    }
-  },
+        await axios.post(`http://localhost:8989/api/photo/${photoId}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const dataForm = new FormData();
+        dataForm.append('title', this.modaltitle);
+
+        await axios.post(`http://localhost:8989/api/photo/${photoId}`, dataForm, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        alert("Foto atualizada com sucesso!");
+
+        this.modaltitle = ''
+        this.selectedPhoto = ''
+        document.querySelector('.btn-close').click()
+       
+        this.fetchPhotos();
+        } catch (error) {
+        console.error('Erro ao editar a foto:', error);
+        }
+      },
     },
     mounted() {
       this.fetchPhotos();
-  },
+    },
 };
 </script>
 

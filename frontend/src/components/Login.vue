@@ -66,6 +66,9 @@
             if (error.response && error.response.data && error.response.data.errors) {
             this.loginErrors = Object.values(error.response.data.errors).flat();
             }
+            if(error.response.status === 500){
+              alert('Usuario não cadastrado')
+            }
             console.error('Erro ao realizar login:', error);
           });
         },

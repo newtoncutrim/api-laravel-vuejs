@@ -103,8 +103,6 @@ SESSION_LIFETIME=120
 docker compose exec app php artisan mig
 rate
 
-docker compose exec app php artisan sto
-rage:link
 ```
 5. Para rodar link simbolico
 ```

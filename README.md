@@ -124,11 +124,20 @@ link do projeto http://localhost:8989/
 ```json
 {
 	"pagina_atual": 1,
-	"total_paginas": 80,
-	"total_registros": 400,
-	"registros_por_pagina": 5,
+	"total_paginas": 1,
+	"total_registros": 1,
+	"registros_por_pagina": 2,
 	"registros": [
-		{ },
+		{
+			"id": 1,
+			"image_path": "photos\/OqV7nAUXrRo87R9tnpofarVurjyaUrDdmmXYvKc0.jpg",
+			"title": "meu cachorro",
+			"created_at": "2023-11-25T16:46:55.000000Z",
+			"updated_at": "2023-11-25T16:46:55.000000Z",
+			"user_id": 1
+		}
+	]
+}
 
 ```
 

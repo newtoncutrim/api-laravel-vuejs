@@ -13,14 +13,6 @@ class UserApiController extends Controller
 {
     public function __construct(protected UserService $service)
     {}
-    /**
-     * Display a listing of the resource.
-     */
-    public function index() /* JsonResponse */
-    {
-        $users = $this->service->findAll();
-        return response()->json($users);
-    }
 
     /**
      * Store a newly created resource in storage.

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class UserAuthController {
 
     public function login(UserAuthRequest $request){
+
         $credentials = $request->only(['email', 'password']);
         if(!Auth::attempt($credentials)){
             return Response()->json([

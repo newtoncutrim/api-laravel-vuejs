@@ -1,5 +1,9 @@
 # API de Gerenciamento de Fotos e Usuários
+## Template vue
+![Texto Alternativo](docs/Captura%20de%20tela%20de%202023-11-27%2009-45-32.png)
 
+
+![Texto Alternativo](docs/Captura%20de%20tela%20de%202023-11-27%2009-45-23.png)
 ## Introdução
 
 A API é projetada para oferecer funcionalidades de gerenciamento de fotos e usuários. Ela permite que os usuários realizem operações básicas em fotos, como upload, ver, atualizar e excluir (CRUD), bem como operações semelhantes em usuários. Além disso, a API oferece autenticação JWT para proteger as rotas e recursos.

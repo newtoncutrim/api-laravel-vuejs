@@ -104,8 +104,7 @@ SESSION_LIFETIME=120
 ```
 4. Para rodar as migrações de banco de dados
 ```
-docker compose exec app php artisan mig
-rate
+docker compose exec app php artisan migrate
 
 ```
 5. Para rodar link simbolico

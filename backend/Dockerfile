@@ -2,7 +2,7 @@
 FROM php:8.1-fpm
 
 # Defina o nome de usuário, por exemplo: user=carlos
-ARG user=carlos
+ARG user=newton
 ARG uid=1000
 
 # Instale dependências do sistema
@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y \
 # Instale o Node.js e npm mais recentes
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
-RUN apt-get install -y npm
 
 # Instale extensões PHP
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets

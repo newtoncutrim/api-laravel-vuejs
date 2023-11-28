@@ -62,9 +62,9 @@ O mesmo padrão de solicitações se aplica às rotas de usuário.
 A autenticação JWT (JSON Web Token) é usada para proteger as rotas da API. Para obter um token JWT, os usuários devem fazer uma solicitação POST para `/api/auth/login` com as credenciais (email e senha). Um token JWT será gerado e retornado na resposta. Esse token deve ser incluído nos cabeçalhos de autorização das solicitações subsequentes para acessar as rotas protegidas.
 
 ## Configuração e Requisitos
-
+- Nodejs
+- https://nodejs.org/en
 - Docker instalado
-
 - Linux https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
 - Windows https://docs.docker.com/desktop/install/windows-install/
 

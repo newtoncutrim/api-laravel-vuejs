@@ -119,8 +119,23 @@ npm install
 npm run dev
 ```
 
-## Exemplos de Códigos
+## Exemplos
 link do projeto http://localhost:8989/
+### Enviar foto
+![Texto Alternativo](docs/enviar%20foto.png)
+### Listar fotos
+![Texto Alternativo](docs/all%20fotos.png)
+### Atualizar foto
+![Texto Alternativo](docs/update%20foto.png)
+### Pegar uma foto
+![Texto Alternativo](docs/getOne%20foto.png)
+### Deletar foto
+![Texto Alternativo](docs/delete%20photo.png)
+### Criar Usuario
+![Texto Alternativo](docs/criar%20user.png)
+### Login Usuario
+![Texto Alternativo](docs/login%20user.png)
+
 ### Json
 
 ```json

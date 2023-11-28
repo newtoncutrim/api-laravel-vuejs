@@ -71,7 +71,11 @@ class PhotoApiController extends Controller
 
         $this->service->update($request,$id);
         $data = $this->service->findOne($id);
-        return response()->json(["message" => "Updated success", "data" => $data], Response::HTTP_OK);
+        if($data){
+            return response()->json(["message" => "Updated success", "data" => $data], Response::HTTP_OK);
+        } else {
+            return response()->json(["error" => "Registro não encontrado"], Response::HTTP_NOT_FOUND);
+        }
     }
 
     public function destroy(int $id): JsonResponse

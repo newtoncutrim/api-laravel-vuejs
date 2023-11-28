@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Response;
 use App\Repository\PhotoRepository;
 
 class PhotoService {
@@ -26,8 +27,10 @@ class PhotoService {
     public function update($request, $id){
         $photo = $this->findOne($id);
         if(!$photo){
-            throw new \Exception("Arquivo não inexistente");
+            return response()->json(["message" => "Registro não encontrado"], Response::HTTP_NOT_FOUND);
         }
+
+
         $dataToUpdate = [];
 
         if($request->hasFile('image_path')){
@@ -39,6 +42,7 @@ class PhotoService {
         }
 
        return $this->repository->update($id,$dataToUpdate);
+
     }
     public function findOne(int $id)
     {
